@@ -27,6 +27,7 @@ type appRoute struct {
 
 func main()  {
 	//route
+
 	http.HandleFunc("/regfunc", regFunc)
 	http.HandleFunc("/authFunc", authFunc)
 	http.HandleFunc("/test", indexTest)
@@ -51,6 +52,7 @@ func indexHandler (w http.ResponseWriter, r *http.Request) {
 	 if err != nil {
 	 	fmt.Println(err.Error())
 	 }
+
 }
 func sendMessage (w http.ResponseWriter, r *http.Request) {
 
@@ -67,6 +69,7 @@ func authFunc (w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
+
 		return
 	}
 login, password:= r.PostFormValue("login"),r.PostFormValue("Password")
@@ -84,7 +87,7 @@ if err!=nil {
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	cookie:= http.Cookie{Name: "user", Value: userID, Expires:expiration}
 	http.SetCookie(w, &cookie)
-	jsResponse:= appRoute{"mainPage",  "false"}
+	jsResponse:= appRoute{"mainPage",  userID}
 	js, _ := json.Marshal(jsResponse)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
@@ -147,6 +150,7 @@ defer file.Close()
 			break // выходим из цикла
 		}
 	}
+
 hashSum := md5.Sum(data)
 fileName := ""
 for _, val := range hashSum {
@@ -154,6 +158,7 @@ for _, val := range hashSum {
 }
 suff := strings.Split(Handler.Filename, ".")[1]
 f, _ := os.Create("SaveFile/"+ fileName +"."+ suff)
+
 
 f.Write(data)
 		defer f.Close()

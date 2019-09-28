@@ -9,12 +9,12 @@ import SendFile from "./sendFile.js";
 class mainPage extends React.Component {
     constructor(props) {
         super(props)
-       this.state = {page: "mainPage", login: 1} //test login
+       this.state = {page: "mainPage", login: "false"} //test login
 
     }
 
     render() {
-        if (this.state.page == "mainPage" && this.state.login != false) {
+        if (this.state.page == "mainPage" && this.state.login != "false") {
             return (<div><h1>Work Page</h1>
                     <h2>Страница тестирования Json запросов</h2>
                     <h2 onClick={()=>this.actionLoadFile()}>Добавить контент</h2>
@@ -23,22 +23,22 @@ class mainPage extends React.Component {
                 </div>
             )
         }
-        if (this.state.page == "mainPage" && this.state.login == false) {
+        if (this.state.page == "mainPage" && this.state.login == "false") {
             return (<div><h1>Main Page</h1>
                     <h2 onClick={()=>this.actionLoginPage()}>Login</h2>
                     <h2 onClick={()=>this.actionRegPage()}>Registration</h2>
                 </div>
             )
         }
-        if (this.state.page == "regPage" && this.state.login == false) {
+        if (this.state.page == "regPage" && this.state.login == "false") {
             return (<RegForm />)
         }
 
-        if (this.state.page == "authPage" && this.state.login == false) {
-            return (<LoginForm />)
+        if (this.state.page == "authPage" && this.state.login == "false") {
+            return (<LoginForm changeState={this.changeState} />)
         }
-        if (this.state.page == "sendFile" && this.state.login != false) {
-            return (<SendFile changeState = {this.changeState} />)
+        if (this.state.page == "sendFile" && this.state.login != "false") {
+            return (<SendFile changeState = {this.changeState} getState ={this.getState}/>)
         }
     }
    async componentDidMount()
@@ -72,7 +72,14 @@ class mainPage extends React.Component {
     //
     // }
  changeState = (newState) => {
-        this.setState({page: newState})
+     console.log(this.state, "old")
+     console.log(newState)
+        this.setState(newState)
+
+
+    }
+ getState = ()=> {
+        return this.state
     }
     actionLoginPage() {
         this.setState({page: "authPage"})
@@ -85,7 +92,7 @@ class mainPage extends React.Component {
     }
     exitSsesion() {
        document.cookie = "user = ;max-age=0"
-        this.setState({page:"mainPage", login: false})
+        this.setState({page:"mainPage", login: "false"})
 
     }
     actionLoadFile() {

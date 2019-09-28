@@ -36,8 +36,8 @@ class LoginForm extends React.Component{
             body: formdata
         } )
         let js = await response.json()
-       console.log(js, "json")
-       this.setState(js)
+       console.log(js, "jso455n")
+       await this.props.changeState(js)
     }
 }
 export default LoginForm

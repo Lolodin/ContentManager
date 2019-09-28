@@ -6,12 +6,15 @@ class SendFile extends React.Component {
             <br/>
             <label>File: </label><input name={"testFile"} type={"file"}/>
             <button>Send File</button>
-            <button onClick={()=>this.backMainPage()}>Back</button>
+            <button onClick={(event)=>this.backMainPage(event)}>Back</button>
 
         </form>)
     }
-    backMainPage() {
-        this.props.changeState("mainPage")
+    backMainPage(event) {
+        event.preventDefault()
+       let parentState = this.props.getState();
+        parentState.page = "mainPage"
+        this.props.changeState(parentState)
     }
 }
 export default SendFile
