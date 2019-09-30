@@ -134,6 +134,19 @@ fmt.Fprintf(w, "error")
 //fmt.Fprintf(w , "%s", a)
 }
 func formHandler(w http.ResponseWriter, r *http.Request)  {
+	userID, userError := r.Cookie("user")
+	if userError != nil{
+		jsResponse:= appRoute{"mainPage",  "false"}
+		js, e := json.Marshal(jsResponse)
+		fmt.Println("not error")
+		if e != nil {
+			fmt.Fprintf(w," e.Error()")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+		return
+	}
+
 	r.ParseMultipartForm(5* 1024 * 1024)
 file,Handler,err:= r.FormFile("testFile")
 	if err!=nil {
@@ -156,10 +169,10 @@ fileName := ""
 for _, val := range hashSum {
 	fileName += strconv.FormatInt(int64(val), 16)
 }
+
 suff := strings.Split(Handler.Filename, ".")[1]
 f, _ := os.Create("SaveFile/"+ fileName +"."+ suff)
-
-
+db.Exec("insert into userfile(filename, userID) values (?, ?)", fileName +"."+ suff, userID.Value)
 f.Write(data)
 		defer f.Close()
 	fmt.Println(Handler.Filename)
