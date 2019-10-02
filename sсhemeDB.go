@@ -24,3 +24,6 @@ func test()  {
 	db.Exec("insert into user(login, password, email) values (?,?,?)", "test", "test", "test@test")
 	db.Exec("insert into userFile(filename, userID) values (?, ?)", "testfile", 1)
 }
+func deletDB() {
+	db.Exec("drop table user, userfile")
+}
