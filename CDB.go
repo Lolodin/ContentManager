@@ -9,20 +9,20 @@ var(
 )
 func main() {
 //createFileDB()
-//createShemeDB()
-//test()
+//createSсhemeDB()
+test()
+//deletDB()
 }
-func createShemeDB () {
+func createSсhemeDB () {
 db.Exec("create table user (id int not null auto_increment, login varchar(20) not null,password varchar(20) not null, " +
 	"email varchar(50) not null, primary key(id))")
 }
 func createFileDB()  {
 db.Exec("create table userFile (id int not null auto_increment" +
-	" primary key , filename varchar(35) not null, userID int) ")
+	" primary key , filename varchar(15) not null, textfile text ,userID int) ")
 }
 func test()  {
-	db.Exec("insert into user(login, password, email) values (?,?,?)", "test", "test", "test@test")
-	db.Exec("insert into userFile(filename, userID) values (?, ?)", "testfile", 1)
+	dataUser, err:= db.Query("select * from userfile where userID = ?", user)
 }
 func deletDB() {
 	db.Exec("drop table user, userfile")

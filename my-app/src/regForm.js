@@ -2,32 +2,26 @@ import React from 'react';
 class RegForm extends React.Component {
     render() {return(
         <div> <h1>Registation Form</h1>
-        <form method={"POST"} action={"localhost:8080/regfunc"}>
+        <form>
 <label>Login</label><input type={"text"} name={"login"} /> <br/>
 <label>Password</label><input type={"text"} name={"Password"} /><br/>
 <label>Email</label><input type={"text"} name={"Email"} />
-            <button onClick={()=>this.sendForm()} >Registration</button>
+            <button onClick={(event)=>this.sendForm(event)} >Registration</button>
         </form>
         </div>)
     }
-
-    sendForm() {
-        let elForm = document.querySelector("form");
-        let formdata = new FormData(elForm);
-        let req = new XMLHttpRequest();
-        req.open("POST", "http://localhost:8080/regfunc")
-        req.onload= ()=>{
-            console.log(req.status)
-            if(req.status==200) {
-                alert(req.responseText)
-            }
-            else
-            {
-                alert("error")
-            }
-        }
-        req.send(formdata)
-
-    }
+// переделать под fetch
+  async  sendForm(event) {
+        event.preventDefault()
+        let elForm = document.querySelector("form")
+        let formdata = new FormData(elForm)
+        let request  = await fetch("/regfunc", {
+        method: "POST",
+        body: formdata,
+        })
+      let js = await request.json()
+      console.log(js)
+      await this.props.changeState(js)
+  }
 }
 export default RegForm

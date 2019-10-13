@@ -4,6 +4,7 @@ import RegForm from "./regForm.js";
 import LoginForm from "./loginForm.js";
 import './App.css';
 import SendFile from "./sendFile.js";
+import MyContent from "./MyContent";
 
 
 class mainPage extends React.Component {
@@ -18,6 +19,7 @@ class mainPage extends React.Component {
             return (<div><h1>Work Page</h1>
                     <h2>Страница тестирования Json запросов</h2>
                     <h2 onClick={()=>this.actionLoadFile()}>Добавить контент</h2>
+                    <h2 onClick={()=> this.changeState({page: "myContent", error: false})}>Мой контент</h2>
                     <h2>Настройки</h2>
                     <h2 onClick={()=>this.exitSsesion()}>Выход</h2>
                 </div>
@@ -31,7 +33,7 @@ class mainPage extends React.Component {
             )
         }
         if (this.state.page == "regPage" && this.state.login == "false") {
-            return (<RegForm />)
+            return (<RegForm changeState = {this.changeState} />)
         }
 
         if (this.state.page == "authPage" && this.state.login == "false") {
@@ -40,11 +42,14 @@ class mainPage extends React.Component {
         if (this.state.page == "sendFile" && this.state.login != "false") {
             return (<SendFile changeState = {this.changeState} getState ={this.getState}/>)
         }
+        if (this.state.page == "myContent" && this.state.login != "false") {
+            return (<MyContent changeState = {this.changeState} getState ={this.getState}/>)
+        }
     }
    async componentDidMount()
     {
        // fetch('http://localhost:8080/checkAuth').then((response)=> response.json().then((response)=> this.setState(response)))
-        let response = await fetch('http://localhost:8080/checkAuth');
+        let response = await fetch('/checkAuth');
         let json = await response.json();
         this.setState(json);
     }
@@ -72,8 +77,10 @@ class mainPage extends React.Component {
     //
     // }
  changeState = (newState) => {
-     console.log(this.state, "old")
-     console.log(newState)
+ if (newState.error != false) {
+     alert("Error: "+newState.error)
+     return
+ }
         this.setState(newState)
 
 
@@ -91,6 +98,10 @@ class mainPage extends React.Component {
 
     }
     exitSsesion() {
+        let e = window.confirm('Выполнить выход?');
+        if (!e) {
+            return
+        }
        document.cookie = "user = ;max-age=0"
         this.setState({page:"mainPage", login: "false"})
 
