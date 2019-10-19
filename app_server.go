@@ -30,7 +30,7 @@ type myJson struct {
 	User string `json:"user"`
 }
 type userResponse struct {
-	Content []string `json:"content"`
+	Content map[int]string `json:"content"`
 
 }
 
@@ -275,18 +275,20 @@ w.Write(answer)
 
 }
 
-func getUserContent(userID string) []string  {
-	var arrUserConten[] string
-	userContent, err:= db.Query("select filename from userfile where userID = ?", userID)
+func getUserContent(userID string) map[int]string {
+	//var arrUserConten  map[int]string
+	arrUserContent:= make( map[int]string)
+	userContent, err:= db.Query("select id, filename from userfile where userID = ?", userID)
 	if err!=nil {
 		fmt.Println("Ошибка запроса файлов пользователя")
 	}
 
 	for userContent.Next() {
 		var filename string
-		userContent.Scan(&filename)
-		arrUserConten = append(arrUserConten, filename)
+		var contentID int
+		userContent.Scan(&contentID ,&filename)
+		arrUserContent[contentID] = filename
 	}
-	fmt.Println(arrUserConten)
-	return arrUserConten
+	fmt.Println(arrUserContent)
+	return arrUserContent
 }

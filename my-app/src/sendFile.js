@@ -20,7 +20,7 @@ class SendFile extends React.Component {
        event.preventDefault()
         let form = document.querySelector("form")
         let fd = new FormData(form)
-        let request = await fetch("http://localhost:8080/formHandler",{
+        let request = await fetch("/formHandler",{
             method: "POST",
             body: fd,
         })
