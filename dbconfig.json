@@ -1,0 +1,14 @@
+{
+
+
+    "driverName": "mysql",
+    "username": "root",
+    "password": "root",
+    "protocol": "tcp",
+    "address" : "localhost:1994",
+    "dbname": "mydata"
+
+
+
+
+}
