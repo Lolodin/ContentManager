@@ -9,12 +9,44 @@ margin: 5px;
 cursor: move;
 }
 
-.positionTarget {
-  position: absolute;
+.delete {
+background: #a56f5c;
+  color: #d6fffa;
+}
+.back {
+  ;
+}
+.mainmenu {
+  margin: 5px;
+  width: 400px;
 
+}
+.login {
+  margin-top: 10%;
+  margin-left: 30%;
 
+}
+.headlogin {
+  margin-left: 15%;
+}
+.back {
+  margin-right: 20%;
+}
+.mainpage {
+  margin-top: 2%;
+  margin-left: 30%;
 
+}
+.auth {
+  margin-top: 10%;
+  margin-left: 35%;
 
-
+}
+.elem {
+  width: 85px;
+}
+.reg {
+  margin-top: 10%;
+  margin-left: 35%;
 
 }

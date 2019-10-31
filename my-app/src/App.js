@@ -1,10 +1,10 @@
 import React from 'react';
-import logo from './logo.svg';
 import RegForm from "./regForm.js";
 import LoginForm from "./loginForm.js";
 import './App.css';
 import SendFile from "./sendFile.js";
 import MyContent from "./MyContent";
+import Setting from "./Setting";
 
 
 class mainPage extends React.Component {
@@ -16,34 +16,36 @@ class mainPage extends React.Component {
 
     render() {
         if (this.state.page == "mainPage" && this.state.login != "false") {
-            return (<div><h1>Work Page</h1>
-                    <h2>Страница тестирования Json запросов</h2>
-                    <h2 onClick={()=>this.actionLoadFile()}>Добавить контент</h2>
-                    <h2 onClick={()=> this.changeState({page: "myContent", error: false})}>Мой контент</h2>
-                    <h2>Настройки</h2>
-                    <h2 onClick={()=>this.exitSsesion()}>Выход</h2>
-                </div>
+            return (<div className={"mainpage"}><h1 className={"headlogin"}>Work Page</h1>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=>this.actionLoadFile()}>Добавить контент</button>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=> this.changeState({page: "myContent", error: false}) } changeState = {this.changeState}  getState ={this.getState} >Мой контент</button>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=> this.changeState({page: "setting", error: false})}>Настройки</button>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=>this.exitSsesion()}>Выход</button>               </div>
             )
         }
         if (this.state.page == "mainPage" && this.state.login == "false") {
-            return (<div><h1>Main Page</h1>
-                    <h2 onClick={()=>this.actionLoginPage()}>Login</h2>
-                    <h2 onClick={()=>this.actionRegPage()}>Registration</h2>
+            return (<div className={"login"}><h1 className={"headlogin"}>Main Page</h1>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=>this.actionLoginPage()}>Login</button>
+                    <br/>
+                    <button type="button" class="btn mainmenu btn-primary" onClick={()=>this.actionRegPage()}>Registration</button>
                 </div>
             )
         }
         if (this.state.page == "regPage" && this.state.login == "false") {
-            return (<RegForm changeState = {this.changeState} />)
+            return (<RegForm  changeState = {this.changeState} getState ={this.getState} />)
         }
 
         if (this.state.page == "authPage" && this.state.login == "false") {
-            return (<LoginForm changeState={this.changeState} />)
+            return (<LoginForm  changeState = {this.changeState} getState ={this.getState} />)
         }
         if (this.state.page == "sendFile" && this.state.login != "false") {
             return (<SendFile changeState = {this.changeState} getState ={this.getState}/>)
         }
         if (this.state.page == "myContent" && this.state.login != "false") {
             return (<MyContent changeState = {this.changeState} getState ={this.getState}/>)
+        }
+        if (this.state.page == "setting" && this.state.login != "false") {
+            return (<Setting changeState = {this.changeState} getState ={this.getState}/>)
         }
     }
    async componentDidMount()

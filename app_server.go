@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -12,13 +13,40 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	_"github.com/go-sql-driver/mysql"
 	"time"
 )
 var (
 	user map[string]string
-	db, _ = sql.Open("mysql", "root:root@tcp(localhost:1994)/mydata")
+	con = getConfig()
+	configString = con.Username+":"+con.Password+"@"+ con.Protocol+"("+con.Address+")/"+con.DBname
+	db, _ = sql.Open(con.DriverName, configString)
 )
+type config struct {
+	DriverName string `json:"drivername"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Protocol string `json:"protocol"`
+	Address string `json:"address"`
+	DBname string `json:"dbname"`
+	SaveFile string `json:"savefile"`
+	Fileserver string `json:"fileserver"`
+}
+
+func getConfig() config  {
+	var c config
+   f, err:=os.Open("config.json")
+   if err!=nil {
+   	fmt.Println("Error open config.json")
+
+   }
+   defer f.Close()
+   b,_:=ioutil.ReadAll(f)
+   _= json.Unmarshal(b, &c)
+
+   return c
+
+
+}
 
 type appRoute struct {
 	Page string `json:"page"`
@@ -27,10 +55,14 @@ type appRoute struct {
 }
 type myJson struct {
 	Request string `json:"request"`
+	Content []string `json:"content"`
+	Updata [][]string `json:"updata"`
+	Contentx map[string]string `json:"contentx"`
 	User string `json:"user"`
 }
 type userResponse struct {
 	Content map[int]string `json:"content"`
+	Setting map[string]string `json:"setting"`
 
 }
 
@@ -38,10 +70,13 @@ type userResponse struct {
 func main()  {
 	//route
 
+fmt.Println(configString,"run")
+
+//go daemonSendFile()
 	http.HandleFunc("/regfunc", regFunc)
 	http.HandleFunc("/authFunc", authFunc)
 	http.HandleFunc("/test", indexTest)
-	http.HandleFunc("/send/", sendMessage)
+	//http.HandleFunc("/send/", sendMessage)
 	http.HandleFunc("/update", getUpdate)
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/formHandler", formHandler)
@@ -53,22 +88,24 @@ func main()  {
 	http.Handle("/static/css/", http.StripPrefix("/static/css/", http.FileServer(http.Dir("./my-app/build/static/css"))))
 	http.Handle("/icon/", http.StripPrefix("/icon/", http.FileServer(http.Dir("./my-app/build"))))
 	http.Handle("/static/media/", http.StripPrefix("/static/media/", http.FileServer(http.Dir("./my-app/build/static/media"))))
-	http.Handle("/image/", http.StripPrefix("/image/", http.FileServer(http.Dir("./SaveFile"))))
+	http.Handle("/image/", http.StripPrefix("/image/", http.FileServer(http.Dir(con.Fileserver))))
 	//static/media/
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err!=nil {
+		fmt.Println("Error start listen server")
+	}
+
 }
+
 func indexHandler (w http.ResponseWriter, r *http.Request) {
+	fmt.Println("indexAction")
 	t, _ := template.ParseFiles("my-app/build/index.html")
 	 err := t.Execute(w, "index")
 	 if err != nil {
 	 	fmt.Println(err.Error())
 	 }
-
 }
-func sendMessage (w http.ResponseWriter, r *http.Request) {
 
-
-}
 func authFunc (w http.ResponseWriter, r *http.Request) {
 	cookieUser, err := r.Cookie("user")
 
@@ -103,18 +140,22 @@ if err!=nil {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
-
 func regFunc (w http.ResponseWriter, r *http.Request) {
 login, password, email := r.PostFormValue("login"),r.PostFormValue("Password"),r.PostFormValue("Email")
-result, err := db.Exec("insert into mydata.user (login, password, email) values (?, ?, ?)", login, password, email)
+result, err := db.Exec("insert into user (login, password, email) values (?, ?, ?)", login, password, email)
 	if err != nil {
 	js:= appRoute{Error:"Login"}
 	mjs,_:= json.Marshal(js)
 	w.Write(mjs)
 		return
 	}
+
 ID, _ := result.LastInsertId()
 userID := strconv.FormatInt(ID, 16)
+	_,err =db.Exec("insert into setting (userid,chatid, hours, minutes) values (?,null,1,1)",userID)
+	if err!= nil {
+		fmt.Println("Error write user setting to BD")
+	}
 expiration := time.Now().Add(365 * 24 * time.Hour)
 
 cookie:= http.Cookie{Name: "user", Value: userID, Expires:expiration}
@@ -195,7 +236,7 @@ for _, val := range hashSum {
 }
 
 suff := strings.Split(Handler.Filename, ".")[1]
-f, _ := os.Create("SaveFile/"+ fileName[:10] +"."+ suff)
+f, _ := os.Create(con.SaveFile+ fileName[:10] +"."+ suff)
 _, errDB :=db.Exec("insert into userfile(filename, userID, textfile) values (?, ?, ?)", fileName[:10] +"."+ suff, userID.Value, text)
 if errDB != nil {
 	fmt.Println("error sedfile to DB: " + errDB.Error())
@@ -245,7 +286,6 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 }
 func apiController (w http.ResponseWriter, r *http.Request) {
 	var js myJson
-
 	userID, userError := r.Cookie("user")
 	if userError != nil{
 		jsResponse:= appRoute{Page:"mainPage", Login: "false"}
@@ -267,28 +307,43 @@ err = json.Unmarshal(testbody, &js)
 	if err!=nil {
 		fmt.Println("error parse json")
 	}
-userData := getUserContent(js.User)
-userR:= userResponse{Content:userData}
-answer,_:= json.Marshal(userR)
-w.Header().Set("Content-Type", "application/json")
-w.Write(answer)
+//Переделать под switch
+	switch js.Request {
+		case "myContent":
+		userData := getUserContent(js.User)
+		userR:= userResponse{Content:userData}
+		answer,_:= json.Marshal(userR)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(answer)
+		case "delete":
+			fmt.Println("запрос на удаление контента id:", js.Content[0], js.Content[1])
+			deleteRow(js.Content[0], js.Content[1])
+
+		case "updata":
+			fmt.Println("запрос на обновление контента Array:",js.Updata)
+			updataUserContent(js.Updata)
+
+		case "setting":
+			fmt.Println("Новые настройки для user"  , js.Contentx)
+			id, h, m :=	js.Contentx["chatId"],js.Contentx["hours"],	js.Contentx["minutes"]
+			updateUserSetting(id, h,m,userID.Value)
+		case "getSetting":
+           set := getSetting(userID.Value)
+		   userR := userResponse{Setting:set}
+		   j, e :=json.Marshal(userR)
+		   if e != nil {
+		   	fmt.Println("error Marshal user request")
+		   }
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(j)
+
+
+
+
+
+	}
+
+
 
 }
 
-func getUserContent(userID string) map[int]string {
-	//var arrUserConten  map[int]string
-	arrUserContent:= make( map[int]string)
-	userContent, err:= db.Query("select id, filename from userfile where userID = ?", userID)
-	if err!=nil {
-		fmt.Println("Ошибка запроса файлов пользователя")
-	}
-
-	for userContent.Next() {
-		var filename string
-		var contentID int
-		userContent.Scan(&contentID ,&filename)
-		arrUserContent[contentID] = filename
-	}
-	fmt.Println(arrUserContent)
-	return arrUserContent
-}

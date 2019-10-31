@@ -1,0 +1,16 @@
+{
+
+
+    "drivername": "mysql",
+    "username": "quirky_muser_1119",
+    "password": "16whGoxXlAXOfYYKDSaPrtks97IAmt",
+    "protocol": "tcp",
+    "address" : "manager-288.opscaptain.com:2387",
+    "dbname": "manager",
+    "savefile": "SaveFile/",
+    "fileserver": "./SaveFile"
+
+
+
+
+}

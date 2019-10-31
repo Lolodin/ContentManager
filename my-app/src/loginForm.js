@@ -2,32 +2,18 @@ import React from 'react';
 
 class LoginForm extends React.Component{
     render() {
-        return (<div>
+        return (<div className={"auth"}>
             <form action={"/authFunc"} >
-                <label>Login</label> <input name={"login"} type={"text"}/>
-                <label>Password</label> <input name={"Password"} type={"text"}/>
-                <button onClick={(event)=>this.sendForm(event)} >Login</button>
+                <label className={"elem"}>Login</label> <input name={"login"} type={"text"}/>
+                <br/>
+                <label className={"elem"}>Password</label> <input name={"Password"} type={"text"}/>
+                <br/>
+                <br/>
+                <button className={"back btn btn-primary"} onClick={(e)=>this.backMainPage(e)}>Back</button>    <button className={"btn btn-primary"} onClick={(event)=>this.sendForm(event)} >Login</button>
             </form>
         </div>)
     }
-    // sendForm() {
-    //     let elForm = document.querySelector("form");
-    //     let formdata = new FormData(elForm);
-    //     let req = new XMLHttpRequest();
-    //     req.open("POST", "http://localhost:8080/authFunc")
-    //     req.onload= ()=>{
-    //         console.log(req.status)
-    //         if(req.status==200) {
-    //             alert(req.responseText)
-    //         }
-    //         else
-    //         {
-    //             alert("error")
-    //         }
-    //     }
-    //     req.send(formdata)
-    //
-    // }
+
    async sendForm(event) {
        event.preventDefault()
         let elForm = document.querySelector("form");
@@ -39,6 +25,12 @@ class LoginForm extends React.Component{
         let js = await response.json()
        console.log(js, "jso455n")
        await this.props.changeState(js)
+    }
+    backMainPage(event) {
+        event.preventDefault()
+        let parentState = this.props.getState();
+        parentState.page = "mainPage"
+        this.props.changeState(parentState)
     }
 }
 export default LoginForm
